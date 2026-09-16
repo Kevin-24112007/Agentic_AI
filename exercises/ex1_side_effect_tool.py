@@ -24,17 +24,15 @@ NOTICES: list[dict] = []
 # ---------------------------------------------------------------- YOUR CODE
 @tool
 def send_notice(roll_number: str, subject: str, body: str) -> dict:
-    """TODO: replace this line with a real summary.
+    """Send a notice to a student and record the notice.
 
-    TODO: add a second paragraph saying WHEN to call this tool. Compare:
-        weak   - "Sends a notice."
-        strong - "Call this when the user asks to inform, notify or tell a
-                  student something. Do not call it for plain lookups."
+    Call this when the user asks to inform, notify or tell a student something.
+    Do not call it for plain lookups or questions that only request information.
 
     Args:
-        roll_number: TODO
-        subject: TODO
-        body: TODO
+        roll_number: The student's roll number, for example 21CS045.
+        subject: The subject line of the notice.
+        body: The information to send to the student.
     """
     NOTICES.append({"roll_number": roll_number, "subject": subject, "body": body})
     return {"sent": True, "to": roll_number, "subject": subject}

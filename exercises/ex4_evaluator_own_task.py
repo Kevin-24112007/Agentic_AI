@@ -19,13 +19,16 @@ import _path  # noqa: F401
 from agentcore import Agent, EvaluatorOptimizer
 
 # ---------------------------------------------------------------- YOUR CODE
-TASK = "TODO: describe the thing you want written, in one or two sentences."
+TASK = (
+    "Write a professional 150-word project abstract for a student attendance "
+    "tracking system that uses an AI assistant to answer campus queries."
+)
 
 CRITERIA = [
-    "TODO: criterion 1 - make this one objectively checkable",
-    "TODO: criterion 2",
-    "TODO: criterion 3",
-    "TODO: criterion 4",
+    "The abstract contains between 120 and 180 words.",
+    "It explains the problem the attendance tracking system addresses.",
+    "It explains how the AI assistant helps users answer campus queries.",
+    "It uses a professional tone and does not make unsupported performance claims.",
 ]
 # ------------------------------------------------------------ END YOUR CODE
 

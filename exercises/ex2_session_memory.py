@@ -29,7 +29,10 @@ def chat(thread_id: str, message: str) -> str:
     3. store.save(thread_id, result.messages)
        return result.output
     """
-    raise NotImplementedError("Complete chat() - see the docstring above.")
+    history = store.load(thread_id)
+    result = agent.run(message, history=history)
+    store.save(thread_id, result.messages)
+    return result.output
 # ------------------------------------------------------------ END YOUR CODE
 
 
