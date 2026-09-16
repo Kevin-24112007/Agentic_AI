@@ -122,21 +122,34 @@ class Agent:
         Built by hand rather than with model_dump() so you can see exactly
         what the API expects to receive back.
         """
-        message: Message = {"role": "assistant", "content": model_message.content}
+        message: Message = {
+            "role": "assistant",
+            "content": model_message.content,
+        }
 
         if model_message.tool_calls:
-            message["tool_calls"] = [
-                {
-                    "id": tc.id,
+            message["tool_calls"] = []
+
+            for tool_call in model_message.tool_calls:
+                serialized_call = {
+                    "id": tool_call.id,
                     "type": "function",
                     "function": {
-                        "name": tc.function.name,
-                        "arguments": tc.function.arguments,
+                        "name": tool_call.function.name,
+                        "arguments": tool_call.function.arguments,
                     },
                 }
-                for tc in model_message.tool_calls
-            ]
-        return message
+
+                extra_content = getattr(
+                    tool_call, "model_extra", {}
+                ).get("extra_content")
+
+                if extra_content:
+                    serialized_call["extra_content"] = extra_content
+
+                message["tool_calls"].append(serialized_call)
+
+        return message  # made changes in this part as gemini 3.5 version wasnt compatible with the previous logic along the issue with the next api call response
 
     # ------------------------------------------------------------------- public
 
