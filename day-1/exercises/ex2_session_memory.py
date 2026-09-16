@@ -32,7 +32,7 @@ def chat(thread_id: str, message: str) -> str:
     history = store.load(thread_id)
     result = agent.run(message, history=history)
     store.save(thread_id, result.messages)
-    return result.output
+    return result.output  # copy pasted the given implementation
 # ------------------------------------------------------------ END YOUR CODE
 
 
