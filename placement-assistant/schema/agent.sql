@@ -8,9 +8,6 @@ CREATE TABLE IF NOT EXISTS thread (
     created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
--- TODO (Part 3.1): message, run, run_step, tool_call.
--- The handout lists the columns and constraints for each table.
-
 CREATE TABLE IF NOT EXISTS message (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     thread_id   TEXT NOT NULL REFERENCES thread(id),

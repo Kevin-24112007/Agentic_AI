@@ -16,8 +16,11 @@ class EligibilityVerdict(BaseModel):
     failed_rules: list[FailedRule]
     summary: str = Field(min_length=1, max_length=280)
 
-    # TODO (stretch): add a model_validator(mode="after") that rejects a verdict whose
-    # `eligible` flag contradicts `failed_rules`. The error message must contain "contradicts".
+    @model_validator(mode="after")
+    def failed_rules_agree_with_eligibility(self):
+        if self.eligible and self.failed_rules:
+            raise ValueError("eligible flag contradicts failed_rules")
+        return self
 
 
 class VerdictInvalid(Exception):
@@ -41,11 +44,19 @@ def _strip_fences(text: str) -> str:
 def structured_verdict(generate: Generate, prompt: str, max_retries: int = 2) -> EligibilityVerdict:
     """Ask the model for an EligibilityVerdict; feed validation errors back; give up after max_retries.
 
-    TODO (stretch):
-      - call generate(messages) with the conversation so far (starts as [prompt])
-      - parse with EligibilityVerdict.model_validate_json(_strip_fences(raw))
-      - on ValidationError: append the raw reply, then a feedback message containing
-        "failed validation" and the errors, and try again
-      - at most 1 + max_retries calls, then raise VerdictInvalid
+    The model receives the original prompt plus each failed reply and a compact
+    validation message so it can repair its next response.
     """
-    raise NotImplementedError
+    messages = [prompt]
+    last_errors = []
+    for attempt in range(max_retries + 1):
+        raw = generate(messages)
+        try:
+            return EligibilityVerdict.model_validate_json(_strip_fences(raw))
+        except ValidationError as error:
+            last_errors = error.errors()
+            if attempt == max_retries:
+                break
+            messages.append(raw)
+            messages.append(f"Your response failed validation: {error}")
+    raise VerdictInvalid(max_retries + 1, last_errors)
