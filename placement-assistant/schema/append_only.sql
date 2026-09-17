@@ -1,0 +1,1 @@
+-- TODO (lab 2): make SQLite itself refuse UPDATE and DELETE on message.
