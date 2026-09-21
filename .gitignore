@@ -1,0 +1,24 @@
+# Environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Test / tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local databases created by the demo / interactive scripts
+*.db
+*.db-journal
+*.sqlite3
+
+# Secrets - never commit real Supabase or Gemini keys
+.env
+.env.*
+!.env.example
+
+# Logs / OS noise
+*.log
+.DS_Store

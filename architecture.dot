@@ -1,0 +1,45 @@
+digraph G {
+  rankdir=LR;
+  graph [bgcolor="white", pad="0.3", fontname="Arial"];
+  node [shape=box, style="rounded,filled", fillcolor="#f4f4f4", fontname="Arial", fontsize=11];
+  edge [fontname="Arial", fontsize=9];
+
+  student   [label="Student", fillcolor="#eaf2ff"];
+  queue     [label="Job queue\nagent_run", shape=cylinder, fillcolor="#eef6ee"];
+  worker    [label="Worker\nlease + heartbeat", fillcolor="#fff4df"];
+  supervisor[label="Supervisor Agent\nno domain tools", fillcolor="#efe7ff"];
+  balance   [label="Balance Specialist\nREAD ONLY\n(no write tool exists)", fillcolor="#e8f7f5"];
+  desk      [label="Leave Desk Specialist\nbound to one student", fillcolor="#ffeaea"];
+
+  readtools  [label="get_leave_balance\nholiday_calendar\nget_leave_requests"];
+  writetools [label="get_leave_balance\napply_leave\nwithdraw_leave\nnotify_hod"];
+
+  leavedb   [label="Leave domain\nleave.db / leave_*", shape=cylinder, fillcolor="#eef6ee"];
+  policy    [label="policy / leave_policy\nmax_days_per_application", fillcolor="#fff4df"];
+  idem      [label="idempotency / leave_idempotency\nkey -> result, same txn as effect", fillcolor="#fff4df"];
+  notify    [label="notification / leave_notification\nsame-day dedupe"];
+
+  runtime   [label="Agent runtime\nagent.db / agent_*", shape=cylinder, fillcolor="#eef6ee"];
+  threads   [label="thread + message"];
+  runs      [label="run + run_step + tool_call\nstatus, lease, attempts"];
+  replay    [label="Crash replay\nrebuild from recorded steps", fillcolor="#fff4df"];
+  reap      [label="reap_expired\ndead lease -> requeue / dead-letter", fillcolor="#fff4df"];
+  cancel    [label="cancel_requested\nchecked between steps only", fillcolor="#fff4df"];
+
+  student -> queue [label="ask / cancel"];
+  queue -> worker [label="claim_next"];
+  worker -> supervisor;
+  supervisor -> balance [label="ask_balance"];
+  supervisor -> desk [label="ask_desk"];
+  balance -> readtools -> leavedb;
+  desk -> writetools -> leavedb;
+  leavedb -> policy;
+  leavedb -> idem;
+  writetools -> notify;
+  worker -> runtime;
+  runtime -> threads;
+  runtime -> runs;
+  runs -> replay;
+  runs -> reap;
+  runs -> cancel;
+}

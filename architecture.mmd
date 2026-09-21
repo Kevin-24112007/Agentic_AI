@@ -1,0 +1,22 @@
+flowchart TD
+    U[Student] -->|scripts.ask / scripts.cancel| Q[(Job queue\nagent_run)]
+    Q -->|claim_next: BEGIN IMMEDIATE\nor FOR UPDATE SKIP LOCKED| W[Worker\nlease + heartbeat]
+    W --> S[Supervisor Agent\nno domain tools]
+    S -->|ask_balance| B[Balance Specialist\nREAD ONLY - no write tool exists]
+    S -->|ask_desk| D[Leave Desk Specialist\nbound to one student]
+
+    B --> RT[get_leave_balance\nholiday_calendar\nget_leave_requests]
+    D --> WT[get_leave_balance\napply_leave\nwithdraw_leave\nnotify_hod]
+
+    RT --> LEAVE[(Leave domain\nleave.db / leave_*)]
+    WT --> LEAVE
+    LEAVE --> POLICY[policy / leave_policy\nmax_days_per_application]
+    LEAVE --> IDEM[idempotency / leave_idempotency\nkey -> result, same transaction as effect]
+    WT --> NOTIFY[notification / leave_notification\nsame-day dedupe]
+
+    W --> RUNTIME[(Agent runtime\nagent.db / agent_*)]
+    RUNTIME --> THREADS[thread + message\nconversation history]
+    RUNTIME --> RUNS[run + run_step + tool_call\nstatus, lease, attempts]
+    RUNS --> REPLAY[Crash replay\nrebuild from recorded steps]
+    RUNS --> REAP[reap_expired\ndead worker's lease -> requeue or dead-letter]
+    RUNS --> CANCEL[cancel_requested\nchecked between steps only]
